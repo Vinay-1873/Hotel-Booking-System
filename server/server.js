@@ -15,7 +15,12 @@ app.use(express.json()) // all request will be pass using json method
 app.use(clerkMiddleware())
 
 // Api to listen to clerk Webhooks
-app.use("/api/clerk",clerkWebhooks);
+app.post(
+  "/api/clerk/webhook",
+  express.json(),
+  clerkWebhooks
+);
+
 
 app.get('/', (req,res)=> res.send("API is working fine"))
 
