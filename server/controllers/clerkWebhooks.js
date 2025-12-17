@@ -19,14 +19,15 @@ const clerkWebhooks = async(req,res)=>{
         //Getting Data from request body
         const {data,type}  =req.body
 
-        const userData = {
-            _id: data.id,
-            email:data.email_addresses[0].email_addresses,
-            username:data.first_name + " " + data.last_name,
-            image:data.image_url,
-        }
+       const userData = {
+    _id: data.id,
+    // CHANGED: Added '?' for safety AND changed the end to singular 'email_address'
+    email: data.email_addresses?.[0]?.email_address, 
+    username: (data.first_name || "") + " " + (data.last_name || ""), // Safer string concatenation
+    image: data.image_url,
+}
 
-        // switch cases for diffrent events
+    // switch cases for diffrent events
         switch (type) {
             case "user.created":{
                 await User.create(userData);
