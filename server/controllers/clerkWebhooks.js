@@ -1,10 +1,10 @@
 import User from "../models/User.js";
 import { Webhook } from "svix";
-import { connectToDB } from "../lib/mongodb";
+import { connectDB} from "../lib/mongodb";
 
 const clerkWebhooks = async (req, res) => {
   try {
-    await connectToDB();
+    await connectDB();
     // Create a Svix instance with clerk webhook secret
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
