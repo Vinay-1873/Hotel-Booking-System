@@ -4,6 +4,15 @@ import { connectDB } from "../configs/db.js";
 
 const clerkWebhooks = async (req, res) => {
     try {
+        // Ignore GET requests (like favicon checks)
+        // This prevents the "500" crash you see in the logs
+        if (req.method === "GET") {
+            return res.status(200).json({ 
+                success: true, 
+                message: "Webhook endpoint is active (GET method)" 
+            });
+        }
+
         console.log("-----------------------------------------");
         console.log("[Clerk Webhook] 1. Request Received");
 
