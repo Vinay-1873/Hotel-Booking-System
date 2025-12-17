@@ -1,55 +1,76 @@
 import User from "../models/User.js";
 import { Webhook } from "svix";
 
-const clerkWebhooks = async(req,res)=>{
-    try {
-        //Create a Svix instant with clerk webhook secret
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
+const clerkWebhooks = async (req, res) => {
+    try {
+        console.log("-----------------------------------------");
+        console.log("[Clerk Webhook] 1. Request Received");
 
-        // getting headers
-        const headers ={
-            "svix-id":req.headers["svix-id"],
-            "svix-timestamp":req.headers["svix-timestamp"],
-            "svix-signature":req.headers["svix-signature"],
-        };
+        // Create a Svix instance with clerk webhook secret
+        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
-        // Verifying headers
-        await whook.verify(JSON.stringify(req.body),headers)
+        // getting headers
+        const headers = {
+            "svix-id": req.headers["svix-id"],
+            "svix-timestamp": req.headers["svix-timestamp"],
+            "svix-signature": req.headers["svix-signature"],
+        };
 
-        //Getting Data from request body
-        const {data,type}  =req.body
+        // Verifying headers
+        // Note: If verification fails, it throws an error and jumps to catch block
+        await whook.verify(JSON.stringify(req.body), headers);
+        console.log("[Clerk Webhook] 2. Verified Successfully");
 
-       const userData = {
-    _id: data.id,
-    // CHANGED: Added '?' for safety AND changed the end to singular 'email_address'
-    email: data.email_addresses?.[0]?.email_address, 
-    username: (data.first_name || "") + " " + (data.last_name || ""), // Safer string concatenation
-    image: data.image_url,
-}
+        // Getting Data from request body
+        const { data, type } = req.body;
+        console.log(`[Clerk Webhook] 3. Event Type: ${type}`);
 
-    // switch cases for diffrent events
-        switch (type) {
-            case "user.created":{
-                await User.create(userData);
-                break;
-            }
-            case "user.updated":{
-                await User.findByIdAndUpdate(data.id,userData);
-                break;
-            }
+        // Prepare userData object
+        const userData = {
+            _id: data.id,
+            email: data.email_addresses?.[0]?.email_address,
+            username: (data.first_name || "") + " " + (data.last_name || ""),
+            image: data.image_url,
+        };
 
-            case "user.deleted":{
-                await User.findByIdAndDelete(data.id);
-                break;
-            }
-            default:
-                break;
-        }
-        res.json({success:true,message:"Webhook recieved"})
-    } catch (error) {
-        console.log(error.message);
-        res.json({success:false,message:error.message});
-    }
+        // switch cases for different events
+        switch (type) {
+            case "user.created": {
+                console.log("[Clerk Webhook] 4. Attempting to create user:", userData);
+                await User.create(userData);
+                console.log("[Clerk Webhook] 5. User Created in DB!");
+                break;
+            }
+            case "user.updated": {
+                console.log("[Clerk Webhook] 4. Attempting to update user:", data.id);
+                await User.findByIdAndUpdate(data.id, userData);
+                console.log("[Clerk Webhook] 5. User Updated in DB!");
+                break;
+            }
+            case "user.deleted": {
+                console.log("[Clerk Webhook] 4. Attempting to delete user:", data.id);
+                await User.findByIdAndDelete(data.id);
+                console.log("[Clerk Webhook] 5. User Deleted from DB!");
+                break;
+            }
+            default:
+                console.log("[Clerk Webhook] 4. Unhandled Event Type:", type);
+                break;
+        }
+
+        res.json({ success: true, message: "Webhook received" });
+
+    } catch (error) {
+        // THIS IS THE MOST IMPORTANT LOG
+        console.error("[Clerk Webhook] ERROR:", error.message);
+        
+        // If it's a Mongoose error, it might have more details in 'error' object
+        if (error.name === 'ValidationError' || error.name === 'CastError') {
+             console.error("[Clerk Webhook] DB Validation Details:", error);
+        }
+
+        res.json({ success: false, message: error.message });
+    }
 }
 
 export default clerkWebhooks;
