@@ -50,6 +50,20 @@ const MyBookings = () => {
     }
   },[user])
 
+  // handle payment
+  const handlePayment = async (bookingId)=>{
+    try {
+      const {data} = await axios.post('/api/bookings/stripe-payment', {bookingId}, {headers: {Authorization: `Bearer ${await getToken()}`}})
+      if(data.success) {
+        window.location.href = data.url
+      }else{
+        toast.error(data.error)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
   return (
     <div className='py-28 md:pb-35 md:pt-32 px-4 md:px-16 lg:px-24 xl:px-32'>
      <Title title='My Bookings' subtitle='Easily manage your past,current,and upcoming hotel reservations in one place.
@@ -110,7 +124,7 @@ const MyBookings = () => {
                 {booking.isPaid ? '✓ Paid' : '✗ Unpaid'}
               </span>
               {!booking.isPaid && (
-                <button className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 transition'>
+                <button onClick={()=>handlePayment(booking._id)} className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 transition'>
                   Pay now
                 </button>
               )}
