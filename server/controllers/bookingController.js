@@ -185,7 +185,7 @@ export const stripePayment = async (req,res)=>{
                    product_data:{
                     name:roomData.hotel.name,
                    },
-                   unit_amount:totalPrice
+                   unit_amount:totalPrice*100
                 },
                 quantity:1,
             }
@@ -194,7 +194,9 @@ export const stripePayment = async (req,res)=>{
         const session =await stripeInstance.checkout.sessions.create({
             line_items,
             mode:"payment",
-            success_url: `${origin}/loader/my-bookings`,
+            // include the CHECKOUT_SESSION_ID in the success URL so the client can verify payment
+            // redirect users to the app's My Bookings page where the client will confirm the session
+            success_url: `${origin}/my-bookings?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/my-bookings`,
             metadata:{
                 bookingId,
@@ -203,5 +205,32 @@ export const stripePayment = async (req,res)=>{
         res.json({success:true,url:session.url})
     } catch (error) {
         res.json({success:false, message: "Payment Failed"})
+    }
+}
+
+// Endpoint to verify checkout session and mark booking as paid (useful when webhooks are not available)
+export const confirmStripeSession = async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+        if (!sessionId) return res.status(400).json({ success: false, message: 'sessionId required' });
+
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+        const session = await stripeInstance.checkout.sessions.retrieve(sessionId);
+        if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+
+        const bookingId = session.metadata?.bookingId;
+        const paymentStatus = session.payment_status || session.payment_intent?.status;
+
+        if (!bookingId) return res.status(400).json({ success: false, message: 'No bookingId in session metadata' });
+
+        if (paymentStatus === 'paid' || paymentStatus === 'succeeded') {
+            await Booking.findByIdAndUpdate(bookingId, { isPaid: true, paymentMethod: 'stripe', status: 'booked' });
+            return res.json({ success: true, message: 'Payment confirmed and booking updated' });
+        }
+
+        return res.json({ success: false, message: 'Payment not completed', paymentStatus });
+    } catch (error) {
+        console.error('confirmStripeSession error:', error.message);
+        return res.status(500).json({ success: false, message: 'Failed to confirm session' });
     }
 }

@@ -50,6 +50,30 @@ const MyBookings = () => {
     }
   },[user])
 
+  // If Stripe redirected back with a session_id, confirm payment and refresh bookings
+  useEffect(()=>{
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    if(!sessionId) return;
+
+    const confirm = async ()=>{
+      try{
+        const token = await getToken();
+        await axios.post('/api/bookings/confirm-payment', { sessionId }, { headers: { Authorization: `Bearer ${token}` } });
+        // refresh bookings after confirmation
+        fetchUserBookings();
+        // remove session_id from URL
+        params.delete('session_id');
+        const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+        window.history.replaceState({}, '', newUrl);
+      }catch(err){
+        console.error('confirm payment failed', err);
+      }
+    }
+    confirm();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
+
   // handle payment
   const handlePayment = async (bookingId)=>{
     try {
