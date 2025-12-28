@@ -57,6 +57,17 @@ const NavBar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [lacation.pathname]);
 
+    const handleScrollTo = (id) => {
+        if (lacation.pathname === '/') {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else {
+            navigate('/', { state: { scrollTo: id } });
+        }
+    }
+
     return (
             <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${isScrolled ? "bg-white/80 shadow-md text-gray-700 backdrop-blur-lg py-3 md:py-4" : "py-4 md:py-6"}`}>
 
@@ -68,12 +79,32 @@ const NavBar = () => {
 
                 {/* Desktop Nav */}
                 <div className="hidden md:flex items-center gap-4 lg:gap-8">
-                    {navLinks.map((link, i) => (
-                        <a key={i} href={link.path} className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white"}`}>
-                            {link.name}
-                            <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
-                        </a>
-                    ))}
+                    {navLinks.map((link, i) => {
+                        if (link.name === 'Experience') {
+                            return (
+                                <button key={i} onClick={() => handleScrollTo('testimonials')} className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white"}`}>
+                                    {link.name}
+                                    <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
+                                </button>
+                            )
+                        }
+
+                        if (link.name === 'About') {
+                            return (
+                                <button key={i} onClick={() => handleScrollTo('footer')} className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white"}`}>
+                                    {link.name}
+                                    <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
+                                </button>
+                            )
+                        }
+
+                        return (
+                            <a key={i} href={link.path} className={`group flex flex-col gap-0.5 ${isScrolled ? "text-gray-700" : "text-white"}`}>
+                                {link.name}
+                                <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
+                            </a>
+                        )
+                    })}
                       { user &&(
                           <button className={`${actionBtnClass} cursor-pointer`} onClick={()=>isOwner ? navigate('/owner'):setShowHotelReg(true)} aria-label={isOwner ? 'Go to Dashboard' : 'List Your Hotel'} title={isOwner ? 'Dashboard' : 'List Your Hotel'}>
                               {isOwner && <DashboardIcon />}
@@ -85,7 +116,7 @@ const NavBar = () => {
 
                 {/* Desktop Right */}
                 <div className="hidden md:flex items-center gap-4">
-                    <img src={assets.searchIcon} alt="search" className={`${isScrolled && 'invert'} h-7 transition-all duration-500`} />
+                    <img onClick={() => handleScrollTo('hero-search')} src={assets.searchIcon} alt="search" role="button" className={`${isScrolled && 'invert'} h-7 transition-all duration-500 cursor-pointer`} />
 
                     {user ? (
                     <UserButton>
@@ -129,11 +160,15 @@ const NavBar = () => {
                         <img src={assets.closeIcon} alt="closemenu" className="h-6.5" />
                     </button>
 
-                    {navLinks.map((link, i) => (
-                        <a key={i} href={link.path} onClick={() => setIsMenuOpen(false)}>
-                            {link.name}
-                        </a>
-                    ))}
+                    {navLinks.map((link, i) => {
+                        if (link.name === 'Experience') {
+                            return <button key={i} onClick={() => { setIsMenuOpen(false); handleScrollTo('testimonials') }}>{link.name}</button>
+                        }
+                        if (link.name === 'About') {
+                            return <button key={i} onClick={() => { setIsMenuOpen(false); handleScrollTo('footer') }}>{link.name}</button>
+                        }
+                        return <a key={i} href={link.path} onClick={() => setIsMenuOpen(false)}>{link.name}</a>
+                    })}
 
                           { user && <button className={`${actionBtnClass} cursor-pointer`} onClick={()=>isOwner ? navigate('/owner'):setShowHotelReg(true)} aria-label={isOwner ? 'Go to Dashboard' : 'List Your Hotel'}>
                               {isOwner && <DashboardIcon />}

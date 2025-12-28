@@ -30,8 +30,8 @@ export const Hero = () => {
   }
 
 
-  return (
-    <div className='flex flex-col items-start justify-center px-6 
+    return (
+        <div id="hero-search" className='flex flex-col items-start justify-center px-6 
     md:px-16 lg:px-24 xl:px-32 text-white bg-[url("/src/assets/hero.png")] bg-no-repeat bg-cover bg-center h-screen opacity-100'>
     <p className='bg-[#FDF6D3]/85 px-3.5 py-1 rounded-full text-black mt-20'>Seamless Booking Experience</p>
     <h1 className='font playfair text-xl md:text-2xl md:text-[35px] md:leading-8.75 font-bold md:font-extrabold max-w-xl mt-4 '>Explore Your Perfect Retreat and Enjoy a Truly Memorable Getaway</h1>
