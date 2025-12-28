@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { useClerk, useUser ,UserButton } from "@clerk/clerk-react";
+import { useClerk,UserButton } from "@clerk/clerk-react";
+import { useAppContext } from "../context/AppContext";
 
 
 const BookIcon= ()=>(
@@ -24,9 +25,21 @@ const NavBar = () => {
     const [isMenuOpen, setIsMenuOpen] =useState(false);
 
     const {openSignIn}=useClerk()
-    const {user}=useUser()
-    const navigate = useNavigate()
     const lacation=useLocation()
+
+    const {user,navigate,isOwner,setShowHotelReg}=useAppContext();
+    const actionBtnClass = isOwner
+        ? `inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${isScrolled ? 'bg-indigo-600 text-white border border-indigo-600' : 'bg-white/30 text-indigo-700 border border-white/20 backdrop-blur-sm'}`
+        : `inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-light transition-colors ${isScrolled ? 'bg-white/60 text-gray-800 border border-gray-200' : 'bg-white/30 text-gray-800 border border-white/20 backdrop-blur-sm'}`;
+
+    const DashboardIcon = () => (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className="opacity-90">
+            <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM13 3v6h8V3h-8zM3 21h8v-6H3v6z" fill="currentColor" />
+        </svg>
+    );
+    React.useEffect(()=>{
+        console.log("NavBar: isOwner ->", isOwner);
+    },[isOwner])
     // const user = useAuthContext()?.user;
 
     React.useEffect(() => {
@@ -61,9 +74,13 @@ const NavBar = () => {
                             <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
                         </a>
                     ))}
-                    <button className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`} >
-                        Dashboard
-                    </button>
+                      { user &&(
+                          <button className={`${actionBtnClass} cursor-pointer`} onClick={()=>isOwner ? navigate('/owner'):setShowHotelReg(true)} aria-label={isOwner ? 'Go to Dashboard' : 'List Your Hotel'} title={isOwner ? 'Dashboard' : 'List Your Hotel'}>
+                              {isOwner && <DashboardIcon />}
+                              <span>{isOwner ? 'Dashboard' : 'List Your Hotel'}</span>
+                          </button>
+                          )
+                      }
                 </div>
 
                 {/* Desktop Right */}
@@ -118,9 +135,10 @@ const NavBar = () => {
                         </a>
                     ))}
 
-                    { user && <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all  bg-black"onClick={()=>navigate('/owner')}>
-                        Dashboard
-                    </button>}
+                          { user && <button className={`${actionBtnClass} cursor-pointer`} onClick={()=>isOwner ? navigate('/owner'):setShowHotelReg(true)} aria-label={isOwner ? 'Go to Dashboard' : 'List Your Hotel'}>
+                              {isOwner && <DashboardIcon />}
+                              <span>{isOwner ? 'Dashboard' : 'List Your Hotel'}</span>
+                          </button>}
                     
                     {!user &&<button onClick={openSignIn} className="bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500">
                         Login

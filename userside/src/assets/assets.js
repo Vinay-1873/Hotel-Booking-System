@@ -96,13 +96,21 @@ export const testimonials = [
 ];
 
 // Facility Icon
-export const facilityIcons = {
+const _facilityIcons = {
     "Free WiFi": assets.freeWifiIcon,
     "Free Breakfast": assets.freeBreakfastIcon,
     "Room Service": assets.roomServiceIcon,
     "Mountain View": assets.mountainIcon,
     "Pool Access": assets.poolIcon,
+    // synonyms / alternate spellings
+    "Swimming Pool": assets.poolIcon,
+    "Pool": assets.poolIcon,
 };
+
+// Export a mapping that includes both original keys and a lowercase normalized key
+export const facilityIcons = Object.fromEntries(
+    Object.entries(_facilityIcons).flatMap(([k, v]) => [[k, v], [k.toLowerCase(), v]])
+);
 
 // For Room Details Page
 export const roomCommonData = [

@@ -8,7 +8,7 @@ const Footer = () => {
                 <div className="md:max-w-96">
                     {/* <img alt="" class="h-12 w-12 rounded-full" src={assets.logo}/> */}
                     <div className='flex justify-items-center gap-3'>
-                        <img alt="" class="h-12 w-12 rounded-full" src={assets.logo}/>
+                        <img alt="" className="h-12 w-12 rounded-full" src={assets.logo}/>
                         <p className='mt-2.5 text-2xl font-bold'> BookYour-Comfort</p></div>
                     <p className="mt-4 text-sm">
                     Book Your Comfort is your trusted platform for discovering premium hotels, seamless booking experiences, and personalized stays. We bring comfort, convenience, and quality together so you can relax and enjoy unforgettable travel moments.

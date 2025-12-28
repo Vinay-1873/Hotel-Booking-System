@@ -1,8 +1,13 @@
 import React, { useState } from 'react'
 import Title from '../../componets/Title'
 import { assets } from '../../assets/assets'
+import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
 
 const Addroom = () => {
+  
+  const {axios,getToken}= useAppContext();
+
   const [images,setImages]=useState({
     1:null,
     2:null,
@@ -23,8 +28,59 @@ const Addroom = () => {
 
   })
 
+  const [loading,setLoading]=useState(false);
+
+  const onSubmitHandler=async(event)=>{
+    event.preventDefault();
+    // check if all inputs are filled
+    if(!inputs.roomType || !inputs.pricePerNight || !inputs.amenities || !Object.values(images).some(images=>images)){
+      toast.error("please fill in all the details");
+      return;
+    }
+    setLoading(true);
+    try {
+      const formData=new FormData();
+      formData.append('roomType',inputs.roomType);
+      formData.append('pricePerNight',inputs.pricePerNight);
+      const amenities=Object.keys(inputs.amenities).filter(key=>inputs.amenities[key]);
+      formData.append('amenities',JSON.stringify(amenities));
+
+      // adding images to formdata
+      Object.keys(images).forEach((key)=>{
+          images[key] && formData.append('images',images[key]);
+      })
+
+      // Correct API path: server mounts room routes at /api/rooms
+      const {data}=await axios.post('/api/rooms', formData, { headers:
+        { Authorization: `Bearer ${await getToken()}` }
+      });
+
+      if(data.success){
+        toast.success(data.message);
+        // reset form
+        setInputs({
+          roomType:'',
+          pricePerNight: 0,
+          amenities:{
+            'Free wifi':false,
+            'Free Breakfast':false,
+            'Mountain View':false,
+            'Room service':false,
+            'swimming pool':false
+          }
+        });
+        setImages({ 1:null,2:null,3:null,4:null });
+      }else{
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally{
+      setLoading(false);
+    }
+  }
   return (
-    <form action="">
+    <form onSubmit={onSubmitHandler}>
       <Title align='left' font='outfit' title='Add New Room' subtitle='Easily add new room listings to your hotel with our user-friendly form. 
       Provide essential details, upload images, and set pricing to attract 
       potential guests and manage your inventory effectively.'/>
@@ -75,8 +131,8 @@ const Addroom = () => {
           </div>
         ))}
       </div>
-      <button className='bg-primary text-white px-8 py-2 rounded mt-5 cursor-pointer'>
-        Add Room
+      <button className='bg-primary text-white px-8 py-2 rounded mt-5 cursor-pointer' disabled={loading}>
+        {loading ? 'Adding...' :"Add Room"}
       </button>
     </form>
   )

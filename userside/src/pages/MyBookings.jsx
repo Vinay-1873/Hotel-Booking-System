@@ -1,15 +1,54 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Title from '../componets/Title'
-import { userBookingsDummyData, assets } from '../assets/assets'
+import { assets } from '../assets/assets'
+import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
+
 
 const MyBookings = () => {
 
-  const [bookings,setBookings]=useState(userBookingsDummyData)
+  const {axios, getToken, user} = useAppContext()
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [fetchError, setFetchError] = useState(null)
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+    if (!dateString) return '—'
+    const d = new Date(dateString)
+    if (isNaN(d)) return '—'
+    return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
   }
+
+
+  const fetchUserBookings =async ()=>{
+    try {
+      setFetchError(null)
+      setLoading(true)
+      console.log('fetchUserBookings: calling /api/bookings/user')
+      const {data} =await axios.get('/api/bookings/user', {headers: {
+        Authorization: `Bearer ${await getToken()}`}})
+        console.log('fetchUserBookings: response ->', data)
+        if(data && data.success){
+          setBookings(Array.isArray(data.bookings) ? data.bookings : [])
+        }else{
+          setBookings([])
+          setFetchError(data?.message || 'Failed to fetch bookings')
+          toast.error(data?.message || 'Failed to fetch bookings')
+        }
+    } catch (error) {
+      console.error('fetchUserBookings: error ->', error)
+      setFetchError(error.message)
+      toast.error(error.message)
+      setBookings([])
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(()=>{
+    if(user){
+      fetchUserBookings()
+    }
+  },[user])
 
   return (
     <div className='py-28 md:pb-35 md:pt-32 px-4 md:px-16 lg:px-24 xl:px-32'>
@@ -24,27 +63,27 @@ const MyBookings = () => {
             <div>Check-Out</div>
             <div>Payment</div>
         </div>
-        {bookings.map((booking)=>(
+        {bookings?.map((booking)=>(
             <div key={booking._id} className='grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr_1fr] w-full border-b border-gray-200 py-4 gap-4'>
             
             { /*******************Hotel Details*********************/ }
             <div className='flex gap-4'>
               {/* Hotel Image */}
-              <div className='w-24 h-24 md:w-32 md:h-24 flex-shrink-0 rounded-md overflow-hidden'>
-                <img src={booking.room.images[0]} alt={booking.hotel.name} className='w-full h-full object-cover' />
+              <div className='w-24 h-24 md:w-32 md:h-24 shrink-0 rounded-md overflow-hidden'>
+                <img src={booking?.room?.images?.[0] || assets.roomImage1} alt={booking?.hotel?.name || 'hotel'} className='w-full h-full object-cover' />
               </div>
               
               {/* Hotel Info */}
               <div className='flex-1 flex flex-col justify-between'>
                 <div>
-                  <h3 className='font-semibold text-base md:text-lg'>{booking.hotel.name} <span className='text-xs text-gray-500 font-normal'>({booking.room.roomType})</span></h3>
+                  <h3 className='font-semibold text-base md:text-lg'>{booking?.hotel?.name || 'Hotel'} <span className='text-xs text-gray-500 font-normal'>({booking?.room?.roomType || '-'})</span></h3>
                   <p className='text-sm text-gray-600 mt-1 flex items-center gap-2'>
                     <img src={assets.locationIcon} alt="location-icon" className='w-4 h-4' />
-                    <span>{booking.hotel.address}</span>
+                    <span>{booking?.hotel?.address || '-'}</span>
                   </p>
-                  <p className='text-sm md:text-base font-medium text-gray-700 mt-2'>₹{booking.room.pricePerNight} /night</p>
+                  <p className='text-sm md:text-base font-medium text-gray-700 mt-2'>₹{booking?.room?.pricePerNight ?? booking?.room?.price ?? '-'} /night</p>
                 </div>
-                <p className='text-sm text-gray-600'>👥 Guests: {booking.guests}</p>
+                <p className='text-sm text-gray-600'>👥 Guests: {booking?.guests ?? '-'}</p>
               </div>
             </div>
             
