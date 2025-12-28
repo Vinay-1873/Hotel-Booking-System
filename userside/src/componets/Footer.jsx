@@ -3,7 +3,7 @@ import { assets } from '../assets/assets'
 const Footer = () => {
    
     return (
-        <footer className="px-6 pt-8 md:px-16  bg-black lg:px-36 w-full text-white">
+        <footer className="px-6 pt-8 md:px-16  bg-black lg:px-35 w-full text-white">
             <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-gray-500 pb-10">
                 <div className="md:max-w-96">
                     {/* <img alt="" class="h-12 w-12 rounded-full" src={assets.logo}/> */}
@@ -13,7 +13,7 @@ const Footer = () => {
                     <p className="mt-4 text-sm">
                     Book Your Comfort is your trusted platform for discovering premium hotels, seamless booking experiences, and personalized stays. We bring comfort, convenience, and quality together so you can relax and enjoy unforgettable travel moments.
                     </p>
-                    <div className="flex items-center gap-2 mt-6">
+                    <div className="flex items-center gap-2 mt-10">
                         <img src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/refs/heads/main/assets/appDownload/googlePlayBtnBlack.svg" alt="google play" className="h-10 w-auto border border-white rounded" />
                         <img src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/refs/heads/main/assets/appDownload/appleStoreBtnBlack.svg" alt="app store" className="h-10 w-auto border border-white rounded" />
                     </div>

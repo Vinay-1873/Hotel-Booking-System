@@ -3,6 +3,7 @@ import Title from '../../componets/Title'
 import { assets } from '../../assets/assets'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import Footer from '../../componets/Footer'
 
 const Addroom = () => {
   
@@ -85,8 +86,8 @@ const Addroom = () => {
       Provide essential details, upload images, and set pricing to attract 
       potential guests and manage your inventory effectively.'/>
       {/* upload Area for images ---------------*/}
-      <p className='text-gray-800 mt-10'>Images</p>
-      <div className='grid grid-cols-2 sm:flex gap-4 my-2 flex-wrap'>
+      <p className='text-gray-800 mt-1'>Images</p>
+      <div className='grid grid-cols-2 sm:flex gap-4 my-1 flex-wrap'>
         {Object.keys(images).map((key)=>(
              <label htmlFor={`roomImage${key}`} key={key}>
               <img className='max-h-13 cursor-pointer opacity-80' src={images[key] ? URL.createObjectURL(images[key]):assets.uploadArea} alt="" />
@@ -96,7 +97,7 @@ const Addroom = () => {
           ))}
       </div>
 
-      <div className='w-full flex max-sm:flex-col sm:gap-4 mt-2'>
+      <div className='w-full flex max-sm:flex-col sm:gap-4 mt-1'>
         <div className='flex-1 max-w-48'>
           <p className='text-gray-800 mt-4'>Room Type</p>
           <select value={inputs.roomType} onChange={e=>setInputs({...inputs,roomType:e.target.value})}
@@ -112,12 +113,12 @@ const Addroom = () => {
           <p className='mt-4 text-gray-800'>
             Price<span className='text-xs'>/night</span>
             </p>
-            <input type="number" placeholder='0' className='border border-gray-300 mt-1 rounded p-2 w-24
+            <input type="number" placeholder='0' className='border border-gray-300 mt-1 rounded p-1.5 w-24
             'value={inputs.pricePerNight} onChange={e=> setInputs({...inputs,pricePerNight:e.target.value})} />
         </div>
       </div>
       {/* Amenities------------------ */}
-      <p className='text-gray-800 mt-2'>Amenities</p>
+      <p className='text-gray-800 mt-1'>Amenities</p>
       <div className='flex flex-col flex-wrap mt-1 text-gray-400 max-w-sm'>
         {Object.keys(inputs.amenities).map((amenity,index)=>(
           <div key={index}>
@@ -131,7 +132,7 @@ const Addroom = () => {
           </div>
         ))}
       </div>
-      <button className='bg-primary text-white px-8 py-2 rounded mt-5 cursor-pointer' disabled={loading}>
+      <button className='bg-primary text-white px-8 py-2 rounded mt-1 cursor-pointer' disabled={loading}>
         {loading ? 'Adding...' :"Add Room"}
       </button>
     </form>

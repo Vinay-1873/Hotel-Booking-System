@@ -140,41 +140,46 @@ const AllRooms = () => {
                  make your travel dreams a reality!</p> 
             </div>
             {filteredRooms.map((room)=>(
-                <div key={room._id}className='flex flex-col md:flex-row items-start py-10 gap-6
-                 border-b border-gray-300 last:pb-30 last:border-0'>
-                    <img onClick={()=>{navigate(`/rooms/${room._id}`); scrollTo(0,0)}} src={room.images[0]} alt="hotel-img" title='view room Details'
-                    className='max-h-65 md:w-1/2 rounded-xl shadow-lg object-cover cursor-pointer' />
-                    <div className='md:w-1/2 flex flex-col gap-2'>
-                        <p className='text-gray-500'>{room.hotel.city}</p>
-                        <p onClick={()=>{navigate(`/rooms/${room._id}`); scrollTo(0,0)}} className='text-gray-800 text-3xl font-playfair
-                        cursor-pointer'>{room.hotel.name}</p>
+                <div key={room._id} className='flex flex-col lg:flex-row items-start py-10 gap-6 border-b border-gray-300 last:pb-30 last:border-0'>
+                    <div className='lg:w-1/2 w-full shrink-0'>
+                        <img onClick={()=>{navigate(`/rooms/${room._id}`); scrollTo(0,0)}} src={room.images[0]} alt="hotel-img" title='view room Details'
+                            className='w-full h-72 lg:h-80 rounded-xl shadow-xl object-cover cursor-pointer shrink-0' />
+                    </div>
+
+                    <div className='lg:w-1/2 w-full flex flex-col justify-between h-72 lg:h-80'>
                         <div>
-                            <StarRating/>
-                            <p className='ml-2'>300+ reviews</p>
+                            <p className='text-sm text-gray-500 mb-1'>{room.hotel.city}</p>
+                            <p onClick={()=>{navigate(`/rooms/${room._id}`); scrollTo(0,0)}} className='text-3xl font-playfair text-gray-900 cursor-pointer leading-tight'>{room.hotel.name}</p>
+                            <div className='flex items-center gap-3 mt-3'>
+                                <StarRating/>
+                                <p className='text-sm text-gray-600'>300+ reviews</p>
+                            </div>
+
+                            <div className='flex items-center gap-2 text-gray-600 mt-3'>
+                                <img src={assets.locationIcon} alt="location-icon" className='w-4 h-4' />
+                                <span className='text-sm'>{room.hotel.address}</span>
+                            </div>
+
+                            <div className='grid grid-cols-2 gap-3 mt-6'>
+                                {room.amenities.map((item,index)=>{
+                                    const key = (item || '').toString();
+                                    const icon = facilityIcons[key] || facilityIcons[key.toLowerCase()];
+                                    return (
+                                        <div key={index} className='inline-flex items-center gap-3 px-4 py-2 bg-[#F7F6FF] rounded-2xl shadow-sm'>
+                                            {icon && <img src={icon} alt={item} className='w-5 h-5' />}
+                                            <span className='text-sm text-gray-700'>{item}</span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
-                        <div>
-                            <img src={assets.locationIcon} alt="location-icon" />
-                            <span>{room.hotel.address}</span>
+
+                        <div className='mt-4'>
+                            <p className='text-3xl font-medium text-gray-800'>₹{room.pricePerNight} <span className='text-lg font-normal text-gray-600'>/night</span></p>
                         </div>
-                        {/* Room Amenities */}
-                        <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
-                            {room.amenities.map((item,index)=>(
-                                <div key={index} className='flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F5F5FF]/70'>
-                                    {/* lookup icon by original key, then by normalized lowercase key */}
-                                    {(() => {
-                                        const key = (item || '').toString();
-                                        const icon = facilityIcons[key] || facilityIcons[key.toLowerCase()];
-                                        return icon ? <img src={icon} alt={item} className='w-5 h-5' /> : null;
-                                    })()}
-                                    <p className='text-xs'>{item}</p>
-                                </div>
-                            ))}
-                        </div>
-                        {/* prices */}
-                        <p className='text-xl font-medium text-gray-700'>₹{room.pricePerNight} /night</p>
                     </div>
                 </div>
-                ))}
+            ))}
 
         </div>
         {/* Filters  part*/}
